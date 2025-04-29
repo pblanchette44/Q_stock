@@ -11,7 +11,7 @@ import SwiftUI
 struct Q_stockReaderApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            StockView()
         }
     }
 }
