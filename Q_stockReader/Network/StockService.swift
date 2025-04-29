@@ -8,7 +8,15 @@
 import Foundation
 
 /*
-    Stock Services, when initing a service, you can inject the Repository that's required for it to work.
+    The Stock service, which perform the list heavy lifting, filtering and mapping of the two data sources
+    
+ I didn't get to a caching system:
+        partly because at first I wanted to cache at the repository level,
+        but since the remote api doesn't take parameter and we fetch the whole json every call,
+        It would have amounted to storing the whole db which I didn't like.
+ 
+        we could cache results here at the service level, associating a key with a set of results,
+        but that wouldn't limit our network calls.
 */
 
 protocol StockFetchingService {
@@ -65,6 +73,7 @@ class StockService: StockFetchingService {
         return stockList
     }
     
+    // this is the function we would be caching in a future update.
     private func fetchStock<Repo>(
         forKey key: String,
         repository: Repo

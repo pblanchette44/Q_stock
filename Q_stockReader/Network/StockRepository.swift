@@ -8,9 +8,17 @@
 import Foundation
 
 /*
-    Repository pattern, includes the DTO for the various json,
-    currently there's only one mock and DTO, because both jsons are the same format,
-    but you can change them with wtv dto you see fit if they change
+    Repository pattern,
+    the remote repo is two protocol composed together, and the mock repo is only the basic mock data
+ 
+    RemoteRepository provides a generic network function which I'm a bit proud of,
+    it's got what you need to fetch and parse according to whatever dto your expecting,
+ 
+    currently the two endpoints provide a dto that is similar, so we reuse the same one, but I bet that
+    if we had to change one of them it would be a matter of splitting the repository so that the expected dto is different.
+ 
+    the remote stock repository got coupled to the dto as well, because of the cancellation task, a future update could address that by
+    taking a generic value at the init which would provide the expected type.
 */
 
 protocol StockRepository {
@@ -66,17 +74,6 @@ struct StockResultsDTO: Decodable {
     var stocks: [StockDTO]
 }
 
-class MockStockRepository: StockRepository {
-
-    func fetchStocks() async throws -> StockResultsDTO {
-        .init(stocks: [
-            .init(name: "Wolf, Conroy and Dickinson", ticker: "LHCL", current_price: 5.39, id: 1),
-            .init(name: "Bogisich Group", ticker: "DMJH", current_price: 25.24, id: 2),
-            .init(name: "Schmitt-Kuphal", ticker: "ZJEO", current_price: 7.61, id: 3)
-        ])
-    }
-}
-
 class RemoteStockRepository: StockRepository, RemoteRepository {
     
     enum StockEndpoint {
@@ -102,6 +99,7 @@ class RemoteStockRepository: StockRepository, RemoteRepository {
             return URLRequest(url: urlString)
         }
     }
+    
     var endpoint: StockEndpoint
     
     var fetchingTask: Task<StockResultsDTO, any Error>?
@@ -127,5 +125,16 @@ class RemoteStockRepository: StockRepository, RemoteRepository {
         }
         
         return try await fetchingTask!.value
+    }
+}
+
+class MockStockRepository: StockRepository {
+
+    func fetchStocks() async throws -> StockResultsDTO {
+        .init(stocks: [
+            .init(name: "Wolf, Conroy and Dickinson", ticker: "LHCL", current_price: 5.39, id: 1),
+            .init(name: "Bogisich Group", ticker: "DMJH", current_price: 25.24, id: 2),
+            .init(name: "Schmitt-Kuphal", ticker: "ZJEO", current_price: 7.61, id: 3)
+        ])
     }
 }

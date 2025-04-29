@@ -7,11 +7,11 @@
 
 import SwiftUI
 
-struct StockView: View {
-    @StateObject private var provider = StockServiceProvider()
+struct StockView<T>: View where T: Provider, T:ObservableObject {
+    @EnvironmentObject private var t: T
     
     var body: some View {
-        StockSearchView(provider: provider)
+        StockSearchView(provider: t)
         .padding()
     }
 }
@@ -19,25 +19,31 @@ struct StockView: View {
 struct StockSearchView: View {
     @StateObject var viewModel: StockViewModel
     
-    init(provider: StockServiceProvider) {
+    init(provider: any Provider) {
         self._viewModel = StateObject(wrappedValue: .init(provider: provider))
     }
     
     var body: some View {
             VStack {
-                // this can lead to prop drilling so we should watchout for a better way to pass the viewModel
+                // this can lead to prop drilling so we should watchout for a better way to pass the viewModel in any future updates
                 SearchBarView(viewModel: viewModel)
                 
+                // we parse the viewModel page state to display a relevant contentView
                 switch viewModel.pageState {
                 case .initial:
+                    // The base View when the user arrives in the app
                     initialView
                 case .empty:
+                    // a warning message when the results are empty
                     emptyView
                 case .error:
+                    // an error message in cases network or data parsing fails
                     errorView
                 case .results:
+                    // the listView containing all the fetched data
                     resultView
                 case .loading:
+                    // a skeleton loader view which serves as an activity indicator
                     loadingView()
                 }
             }

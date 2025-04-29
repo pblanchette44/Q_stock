@@ -11,7 +11,8 @@ import SwiftUI
 struct Q_stockReaderApp: App {
     var body: some Scene {
         WindowGroup {
-            StockView()
+            StockView<StockServiceProvider>()
+                .environmentObject(StockServiceProvider())
         }
     }
 }

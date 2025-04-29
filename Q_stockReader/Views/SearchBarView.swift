@@ -7,6 +7,11 @@
 
 import SwiftUI
 
+/*
+ A SearchBar component which interacts with a viewModel that implements it's manager protocol.
+ I wasn't inspired for the name of the protocol, so SearchBarManager will do.
+*/
+
 protocol SearchBarManager: ObservableObject {
     @MainActor func onInputTextChange(inputText text: String)
     @MainActor func clearSearch()
